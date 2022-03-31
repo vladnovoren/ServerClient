@@ -29,25 +29,21 @@ void Server::EventLoop() {
       if (event_fd == socket_.GetFD()) {
         AddClient();
       } else {
+        FILE* log = fopen("log.txt", "a");
         while (true) {
           char buff = -1;
           int ret = read(event_fd, &buff, 1);
-          if(ret > 0){
-              printf("%c", buff);
-          }
-          if(buff == '\n'){
-              break;
-          }
-          else if (ret == 0){
+          if (ret > 0){
+            fprintf(log, "%c", buff);
+          } if (buff == '\n'){
+            break;
+          } else if (ret == 0){
             close(event_fd);
             epoll_ctl(epoll_.GetFD(), EPOLL_CTL_DEL, event_fd, NULL);
             break;
           }
-          else if (ret < 0){
-              printf("read error.\n");
-              break;
-          }
         }
+        fclose(log);
       }
     }
   }
